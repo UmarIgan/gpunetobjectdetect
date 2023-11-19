@@ -24,7 +24,7 @@ precision = st.sidebar.selectbox("Select Precision", ["fp32", "fp16"])
 
 # Load the model
 gpunet = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_gpunet', pretrained=True, model_type=model_type, model_math=precision)
-utils = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_convnets_processing_utils')
+utils = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_convnets_processing_utils', force_reload=True)
 
 gpunet.to(device)
 gpunet.eval()
