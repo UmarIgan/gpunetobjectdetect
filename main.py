@@ -37,7 +37,7 @@ if uploaded_file is not None:
     st.image(image, caption="Uploaded Image.", use_column_width=True)
 
     # Prepare input data for inference
-    batch = utils.prepare_input_from_image(image).to(device)
+    batch = utils.prepare_input(image).to(device)
 
     if precision == "fp16":
         batch = batch.half()
