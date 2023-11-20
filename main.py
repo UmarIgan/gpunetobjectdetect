@@ -37,7 +37,9 @@ if uploaded_file is not None:
     st.image(image, caption="Uploaded Image.", use_column_width=True)
 
     # Prepare input data for inference
-    batch = utils.prepare_input(image).to(device)
+    #batch = utils.prepare_input(image).to(device)
+    convert_tensor = transforms.ToTensor()
+    batch = convert_tensor(image).to(device).unsqueeze(0)
 
     if precision == "fp16":
         batch = batch.half()
