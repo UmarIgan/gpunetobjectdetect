@@ -16,11 +16,17 @@ if torch.cuda.is_available():
 else:
     device = torch.device("cpu")
 
-st.title("Object Detection with GPUNet")
+st.title("Object Detection with GPUNet by umar igan")
+st.markdown("Code: [Github](https://github.com/UmarIgan/gpunetobjectdetect)")
+
 
 # Model loading section
 model_type = st.sidebar.selectbox("Select Model Type", ["GPUNet-0", "GPUNet-1", "GPUNet-2", "GPUNet-P0", "GPUNet-P1", "GPUNet-D1", "GPUNet-D2"])
 precision = st.sidebar.selectbox("Select Precision", ["fp32", "fp16"])
+
+values = ['<select>',3, 5, 10, 15, 20, 30]
+default_ix = values.index(3)
+num_of_results = st.sidebar.selectbox('Select Number of object to detect', values, index=default_ix)
 
 # Load the model
 gpunet = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_gpunet', pretrained=True, model_type=model_type, model_math=precision)
@@ -47,7 +53,7 @@ if uploaded_file is not None:
     # Run inference
     with torch.no_grad():
         output = torch.nn.functional.softmax(gpunet(batch), dim=1)
-    results = utils.pick_n_best(predictions=output, n=10)
+    results = utils.pick_n_best(predictions=output, n=num_of_results)
 
     # Display results
     for i, result in enumerate(results):
@@ -55,5 +61,3 @@ if uploaded_file is not None:
         for item in result:
             st.text(f"{item[0]}: {item[1]}")
 
-        # Display the image with bounding boxes (if available)
-        utils.show_image_with_boxes(image, result)
