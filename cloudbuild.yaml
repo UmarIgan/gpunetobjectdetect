@@ -2,8 +2,6 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'gcr.io/$aiuuu-403205/my-app:$COMMIT_SHA', '.']
 options:
-  logging: CLOUD_LOGGING_ONLY
-  # Specify the logs bucket here
-  logsBucket: 'gs://testbucketexplainer'
+  logging: CLOUD_LOGGING_ONLY  # Ensures logs go to Cloud Logging
 images:
 - 'gcr.io/$aiuuu-403205/my-app:$COMMIT_SHA'
