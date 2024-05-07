@@ -25,11 +25,11 @@ def process_single_image_and_get_result(model_name, url):
         model_id = "vikhyatk/moondream2"
         revision = "2024-04-02"
         model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, revision=revision)
-        tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
+        tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision,trust_remote_code=True)
         result = "Model 'moon_dream' not fully implemented for image encoding."  # Placeholder as the model API is not standard
     elif model_name == "MiniCPM":
-        model = AutoModel.from_pretrained('openbmb/MiniCPM-V-2')
-        tokenizer = AutoTokenizer.from_pretrained('openbmb/MiniCPM-V-2')
+        model = AutoModel.from_pretrained('openbmb/MiniCPM-V-2',trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained('openbmb/MiniCPM-V-2'trust_remote_code=True)
         model.eval()
         result = "Model 'MiniCPM' not fully implemented for image encoding."  # Placeholder as the model API is not standard
     else:
