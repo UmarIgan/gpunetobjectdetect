@@ -26,12 +26,18 @@ def process_single_image_and_get_result(model_name, url):
         revision = "2024-04-02"
         model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, revision=revision)
         tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision,trust_remote_code=True)
-        result = "Model 'moon_dream' not fully implemented for image encoding."  # Placeholder as the model API is not standard
+        enc_image = model_m.encode_image(image)  # Adjust this line according to your actual model API
+        # Use the encoded image to answer a question based on the prompt
+        result = model_m.answer_question(enc_image, prompt, tokenizer)
     elif model_name == "MiniCPM":
         model = AutoModel.from_pretrained('openbmb/MiniCPM-V-2',trust_remote_code=True)
         tokenizer = AutoTokenizer.from_pretrained('openbmb/MiniCPM-V-2'trust_remote_code=True)
         model.eval()
-        result = "Model 'MiniCPM' not fully implemented for image encoding."  # Placeholder as the model API is not standard
+        prompt_new = f"[INST] <image>\n{prompt}[/INST]"
+        inputs = processor(prompt_new, image, return_tensors="pt")
+        # autoregressively complete prompt
+        output = model.generate(**inputs, max_new_tokens=512)
+        result  = processor.decode(output[0], skip_special_tokens=True)
     else:
         raise ValueError("Invalid model name. Please choose 'moon_dream' or 'MiniCPM'.")
     return result
