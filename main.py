@@ -3,6 +3,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
 from PIL import Image
 import requests
 from io import BytesIO
+import torch
 
 def process_single_image_and_get_result(model_name, url):
     single_json = requests.get(url).json()
