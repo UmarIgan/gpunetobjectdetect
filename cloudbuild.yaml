@@ -3,3 +3,5 @@ steps:
   args: ['build', '-t', 'gcr.io/$aiuuu-403205/my-app:$COMMIT_SHA', '.']
 images:
 - 'gcr.io/$aiuuu-403205/my-app:$COMMIT_SHA'
+options:
+  logging: CLOUD_LOGGING_ONLY
