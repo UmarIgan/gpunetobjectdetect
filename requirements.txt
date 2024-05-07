@@ -1,8 +1,7 @@
 streamlit
-torch
-torchvision
-timm==0.5.4
+transformers
 requests
-matplotlib
 Pillow
 tqdm
+einops
+
