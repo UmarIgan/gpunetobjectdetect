@@ -1,63 +1,50 @@
 import streamlit as st
-import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
 from PIL import Image
-import torchvision.transforms as transforms
-import numpy as np
-import json
 import requests
-import matplotlib.pyplot as plt
-import warnings
+from io import BytesIO
 
-warnings.filterwarnings('ignore')
+def process_single_image_and_get_result(model_name, url):
+    single_json = requests.get(url).json()
+    prod = single_json["products"]['17387']
+    image_url = prod['images'][0]
+    prompt = f"""Generate a compelling product description for an e-commerce website. The product is {prod['product']},
+    a creation by the brand {prod['brand']}. Focus on its key features, benefits, and how it stands out in the market.
+    Highlight the unique ingredients and their benefits for the skin or hair. Emphasize the handcrafted nature and
+    the quality of ingredients, appealing to customers looking for luxury, natural skincare products.
+    Use persuasive and attractive language to entice potential buyers, aiming to convert interest into purchases.
+    Include a call to action that encourages quick buying decisions."""
 
-# Check if GPU is available
-if torch.cuda.is_available():
-    device = torch.device("cuda")
-else:
-    device = torch.device("cpu")
+    # Fetch and open the image from URL
+    response = requests.get(image_url)
+    image = Image.open(BytesIO(response.content))
 
-st.title("Object Detection with GPUNet by umar igan")
-st.markdown("Code: [Github](https://github.com/UmarIgan/gpunetobjectdetect)")
+    # Encode the image and get result based on model
+    if model_name == "moon_dream":
+        model_id = "vikhyatk/moondream2"
+        revision = "2024-04-02"
+        model = AutoModelForCausalLM.from_pretrained(model_id, trust_remote_code=True, revision=revision)
+        tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
+        result = "Model 'moon_dream' not fully implemented for image encoding."  # Placeholder as the model API is not standard
+    elif model_name == "MiniCPM":
+        model = AutoModel.from_pretrained('openbmb/MiniCPM-V-2')
+        tokenizer = AutoTokenizer.from_pretrained('openbmb/MiniCPM-V-2')
+        model.eval()
+        result = "Model 'MiniCPM' not fully implemented for image encoding."  # Placeholder as the model API is not standard
+    else:
+        raise ValueError("Invalid model name. Please choose 'moon_dream' or 'MiniCPM'.")
+    return result
 
-
-# Model loading section
-model_type = st.sidebar.selectbox("Select Model Type", ["GPUNet-0", "GPUNet-1", "GPUNet-2", "GPUNet-P0", "GPUNet-P1", "GPUNet-D1", "GPUNet-D2"])
-precision = st.sidebar.selectbox("Select Precision", ["fp32", "fp16"])
-
-values = ['<select>',3, 5, 10, 15, 20, 30]
-default_ix = values.index(3)
-num_of_results = st.sidebar.selectbox('Select Number of object to detect', values, index=default_ix)
-
-# Load the model
-gpunet = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_gpunet', pretrained=True, model_type=model_type, model_math=precision)
-utils = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_convnets_processing_utils', force_reload=True)
-
-gpunet.to(device)
-gpunet.eval()
-
-# Image upload and inference section
-uploaded_file = st.file_uploader("Choose an image...", type=['png', 'jpg', 'jpeg] )
-
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image.", use_column_width=True)
-
-    # Prepare input data for inference
-    #batch = utils.prepare_input(image).to(device)
-    convert_tensor = transforms.ToTensor()
-    batch = convert_tensor(image).to(device).unsqueeze(0)
-
-    if precision == "fp16":
-        batch = batch.half()
-
-    # Run inference
-    with torch.no_grad():
-        output = torch.nn.functional.softmax(gpunet(batch), dim=1)
-    results = utils.pick_n_best(predictions=output, n=num_of_results)
-
-    # Display results
-    for i, result in enumerate(results):
-        st.subheader(f"Sample {i}")
-        for item in result:
-            st.text(f"{item[0]}: {item[1]}")
-
+# Streamlit interface
+st.title("Product Description Generator")
+model_name = st.selectbox("Choose a Model", ["moon_dream", "MiniCPM"])
+url = st.text_input("Enter the API URL", "https://api.example.com/data")
+if st.button("Generate Description"):
+    if url:
+        try:
+            content = process_single_image_and_get_result(model_name, url)
+            st.write(content)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+    else:
+        st.error("Please provide a valid URL.")
