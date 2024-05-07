@@ -1,6 +1,8 @@
 streamlit
 transformers
 requests
+torchvision
+timm
 Pillow
 tqdm
 einops
