@@ -31,7 +31,7 @@ def process_single_image_and_get_result(model_name, url):
         result = model_m.answer_question(enc_image, prompt, tokenizer)
     elif model_name == "MiniCPM":
         model = AutoModel.from_pretrained('openbmb/MiniCPM-V-2',trust_remote_code=True)
-        tokenizer = AutoTokenizer.from_pretrained('openbmb/MiniCPM-V-2'trust_remote_code=True)
+        tokenizer = AutoTokenizer.from_pretrained('openbmb/MiniCPM-V-2', trust_remote_code=True)
         model.eval()
         prompt_new = f"[INST] <image>\n{prompt}[/INST]"
         inputs = processor(prompt_new, image, return_tensors="pt")
